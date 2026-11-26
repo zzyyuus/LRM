@@ -1,0 +1,23 @@
+{
+  "dataset": "SIRI-WHU",
+  "method": "l4_resgate_spatial_k128",
+  "depth": 18,
+  "width": 128,
+  "seed": 42,
+  "split_seed": 20260930,
+  "device": "cuda",
+  "epochs": 300,
+  "min_epochs": 50,
+  "patience": 30,
+  "batch_size": 16,
+  "workers": 0,
+  "augmentation": "hw_mixup",
+  "aug_profile": "paper",
+  "ema_decay": 0.99,
+  "lr": 0.0001,
+  "select": "ema_best",
+  "early_stop_metric": "ema_val",
+  "test_selected_only": true,
+  "audit": "splits/audit.json",
+  "split_file": "splits/SIRI-WHU_reviewer_fold1.json"
+}
