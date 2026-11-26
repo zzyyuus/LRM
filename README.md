@@ -106,4 +106,4 @@ Related research: [Mamba](https://github.com/state-spaces/mamba), [Vision Mamba]
 
 
 
-The earlier single-file implementation in lrmnet/LRMNet.py is retained for history. Use the root train.py and evaluate.py entry points with configs/ for the current release.
+Use the root train.py and evaluate.py entry points with configs/ for the current release.
