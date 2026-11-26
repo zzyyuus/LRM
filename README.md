@@ -41,59 +41,14 @@ Set `--data-root` to the directory relative to which the image paths in the sele
 
 ## Training
 
-Run commands from the repository root. Replace `/path/to/data` with your data root. Original experiment configurations are retained in `configs/`; their server-specific paths must be adapted if reused.
-
-<details>
-<summary>Training commands for UCMerced and SIRI-WHU (click to expand)</summary>
-
-### UCMerced
-
-```bash
-python code/train_experiment.py \
-  --audit splits/audit.json --dataset UCMerced \
-  --split-file splits/UCMerced_bundle_fold1.json --data-root /path/to/data \
-  --output runs/UCMerced_lrmnet_s42 --method l4_resgate_spatial_k128 \
-  --depth 18 --width 128 --seed 42 --split-seed 20260929 --device cuda \
-  --epochs 300 --min-epochs 50 --patience 30 --batch-size 64 --workers 0 \
-  --augmentation none --aug-profile geo --ema-decay 0.99 --lr 0.0001 \
-  --select ema_best --early-stop-metric ema_val --test-selected-only
-```
-
-### SIRI-WHU
-
-```bash
-python code/train_experiment.py \
-  --audit splits/audit.json --dataset SIRI-WHU \
-  --split-file splits/SIRI-WHU_reviewer_fold1.json --data-root /path/to/data \
-  --output runs/SIRI_lrmnet_s42 --method l4_resgate_spatial_k128 \
-  --depth 18 --width 128 --seed 42 --split-seed 20260930 --device cuda \
-  --epochs 300 --min-epochs 50 --patience 30 --batch-size 16 --workers 0 \
-  --augmentation hw_mixup --aug-profile paper --ema-decay 0.99 --lr 0.0001 \
-  --select ema_best --early-stop-metric ema_val --test-selected-only
-```
-
-</details>
-
-For the three-seed experiments, repeat with `--seed 43` and `--seed 44`, using a different output directory for each run. For the module-free baseline, replace the method with `l4_without_attention` and use a separate output directory.
+- [Training script](code/train_experiment.py)
+- [UCMerced configuration](configs/screen/UCMerced_f1_l4_resgate_spatial_k128_geo_s42/config.json)
+- [SIRI-WHU configuration](configs/SIRI-WHU.json)
+- [Dataset splits](splits/)
 
 ## Testing and Evaluation
 
-The same runner performs testing automatically after training. The commands above select the EMA checkpoint using validation performance and evaluate that checkpoint on the test split through `--test-selected-only`. No separate evaluation script is required.
-
-Results are saved in the directory passed to `--output`:
-
-| File | Content |
-|---|---|
-| `result.json` | Test OA, macro-F1, Kappa, confusion matrix, and run summary |
-| `metrics.json` | Per-epoch training and validation metrics |
-| `config.json` | Training configuration |
-| `split.json` | Dataset partition used by the run |
-| `best_ema.pt` | EMA checkpoint selected by validation accuracy |
-| `last.pt` | Checkpoint for resuming training |
-
-Accuracy and macro-F1 in the JSON results are fractions; multiply by 100 for percentages. An output directory containing `result.json` is treated as a completed run. Use a new directory for a new experiment.
-
-To resume an interrupted run, repeat its original command with the same output directory and add `--resume-from /path/to/last.pt`.
+Testing and evaluation are included in the [training script](code/train_experiment.py).
 
 ## Citation
 
