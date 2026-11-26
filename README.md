@@ -43,6 +43,9 @@ Set `--data-root` to the directory relative to which the image paths in the sele
 
 Run commands from the repository root. Replace `/path/to/data` with your data root. Original experiment configurations are retained in `configs/`; their server-specific paths must be adapted if reused.
 
+<details>
+<summary>Training commands for UCMerced and SIRI-WHU (click to expand)</summary>
+
 ### UCMerced
 
 ```bash
@@ -68,6 +71,8 @@ python code/train_experiment.py \
   --augmentation hw_mixup --aug-profile paper --ema-decay 0.99 --lr 0.0001 \
   --select ema_best --early-stop-metric ema_val --test-selected-only
 ```
+
+</details>
 
 For the three-seed experiments, repeat with `--seed 43` and `--seed 44`, using a different output directory for each run. For the module-free baseline, replace the method with `l4_without_attention` and use a separate output directory.
 
