@@ -50,6 +50,13 @@ Set `--data-root` to the directory relative to which the image paths in the sele
 
 Testing and evaluation are included in the [training script](code/train_experiment.py).
 
+## Model Weights
+
+| Dataset | Seed 42 | Seed 43 | Seed 44 |
+|---|---|---|---|
+| SIRI-WHU | [Download](weights/SIRI-WHU/seed42.pt) | [Download](weights/SIRI-WHU/seed43.pt) | [Download](weights/SIRI-WHU/seed44.pt) |
+| UCMerced | [Download](weights/UCMerced/seed42.pt) | [Download](weights/UCMerced/seed43.pt) | [Download](weights/UCMerced/seed44.pt) |
+
 ## Citation
 
 **LRMNet: Lightweight Intra-Image Region Relation Modeling for Remote Sensing Scene Classification.** IEEE Signal Processing Letters, accepted for publication.
