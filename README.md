@@ -43,14 +43,33 @@ Set `--data-root` to the directory relative to which the image paths in the sele
 
 Run commands from the repository root. Replace `/path/to/data` with your data root. Original experiment configurations are retained in `configs/`; their server-specific paths must be adapted if reused.
 
+### UCMerced
+
 ```bash
-python code/train_experiment.py --config configs/ucmerced.json --data-root /path/to/data --output runs/UCMerced_s42
-python code/train_experiment.py --config configs/siri_whu.json --data-root /path/to/data --output runs/SIRI_s42
+python code/train_experiment.py \
+  --audit splits/audit.json --dataset UCMerced \
+  --split-file splits/UCMerced_bundle_fold1.json --data-root /path/to/data \
+  --output runs/UCMerced_lrmnet_s42 --method l4_resgate_spatial_k128 \
+  --depth 18 --width 128 --seed 42 --split-seed 20260929 --device cuda \
+  --epochs 300 --min-epochs 50 --patience 30 --batch-size 64 --workers 0 \
+  --augmentation none --aug-profile geo --ema-decay 0.99 --lr 0.0001 \
+  --select ema_best --early-stop-metric ema_val --test-selected-only
 ```
 
-Training settings are stored in the configuration files. Command-line arguments override configuration values.
+### SIRI-WHU
 
-For the three-seed experiments, repeat with `--seed 43` and `--seed 44`, using a different output directory for each run. For the module-free baseline, add `--method l4_without_attention` and use a separate output directory.
+```bash
+python code/train_experiment.py \
+  --audit splits/audit.json --dataset SIRI-WHU \
+  --split-file splits/SIRI-WHU_reviewer_fold1.json --data-root /path/to/data \
+  --output runs/SIRI_lrmnet_s42 --method l4_resgate_spatial_k128 \
+  --depth 18 --width 128 --seed 42 --split-seed 20260930 --device cuda \
+  --epochs 300 --min-epochs 50 --patience 30 --batch-size 16 --workers 0 \
+  --augmentation hw_mixup --aug-profile paper --ema-decay 0.99 --lr 0.0001 \
+  --select ema_best --early-stop-metric ema_val --test-selected-only
+```
+
+For the three-seed experiments, repeat with `--seed 43` and `--seed 44`, using a different output directory for each run. For the module-free baseline, replace the method with `l4_without_attention` and use a separate output directory.
 
 ## Testing and Evaluation
 

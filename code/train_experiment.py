@@ -1,5 +1,5 @@
 """Resumable experiment runner with validation-only early stopping."""
-import argparse,json,math,random,time,os,sys
+import argparse,json,math,random,time,os
 from pathlib import Path
 import torch
 from torch import nn
@@ -90,7 +90,6 @@ def evaluate(model,loader,device,classes):
 
 def main():
     p=argparse.ArgumentParser()
-    p.add_argument('--config',help='JSON training configuration; command-line options override it')
     for key in ('audit','dataset','output'):p.add_argument('--'+key,required=True)
     p.add_argument('--method',default='ours');p.add_argument('--depth',type=int,default=18);p.add_argument('--width',type=int,default=256)
     p.add_argument('--seed',type=int,default=42);p.add_argument('--split-seed',type=int,default=20260929);p.add_argument('--device',default='auto');p.add_argument('--epochs',type=int,default=300);p.add_argument('--min-epochs',type=int,default=50);p.add_argument('--patience',type=int,default=30);p.add_argument('--batch-size',type=int,default=16);p.add_argument('--threads',type=int,default=4);p.add_argument('--workers',type=int,default=0);p.add_argument('--resume-from')
@@ -122,28 +121,7 @@ def main():
                    help='Finish after validation and save no test metrics; use for model development.')
     p.add_argument('--test-selected-only',action='store_true',
                    help='Evaluate only the predeclared selected checkpoint on test.')
-    probe=argparse.ArgumentParser(add_help=False)
-    probe.add_argument('--config')
-    config_path=probe.parse_known_args()[0].config
-    config_args=[]
-    if config_path:
-        try:
-            settings=json.loads(Path(config_path).read_text(encoding='utf-8'))
-        except (OSError,ValueError) as exc:
-            p.error('Cannot read config: '+str(exc))
-        if not isinstance(settings,dict):p.error('Config must be a JSON object')
-        actions={action.dest:action for action in p._actions}
-        for key,value in settings.items():
-            if key not in actions or key in ('config','help'):p.error('Unknown config key: '+key)
-            action=actions[key]
-            if value is None:continue
-            if isinstance(action,argparse._StoreTrueAction):
-                if not isinstance(value,bool):p.error(key+' must be boolean')
-                if value:config_args.append(action.option_strings[0])
-            else:
-                if isinstance(value,(dict,list,bool)):p.error('Invalid config value: '+key)
-                config_args.extend([action.option_strings[0],str(value)])
-    a=p.parse_args(config_args+sys.argv[1:]);out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
+    a=p.parse_args();out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
     # 早停判据默认跟随「选权重规则」，保证两者永远是同一个量：
     #   select=val_best -> 普通验证准确率；select=ema_best -> EMA 验证准确率；
     #   select=ema_best_loss -> EMA 验证损失（对过拟合更敏感）；select=last -> EMA 验证准确率。
