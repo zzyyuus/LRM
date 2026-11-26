@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+__MACOSX/
+.venv/
+data/
+runs/
+outputs/
+weights/
+training_logs/
+*.pt
+*.pth
+*.ckpt
+*.log
+.env
