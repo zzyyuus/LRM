@@ -1,12 +1,12 @@
 # LRMNet
 
-PyTorch implementation of **LRMNet: Lightweight Intra-Image Region Relation Modeling for Remote Sensing Scene Classification**, accepted for publication in **IEEE Signal Processing Letters**.
+PyTorch implementation of **LRMNet: Lightweight Intra-Image Region Relation Modeling for Remote Sensing Scene Classification**, accepted for publication in IEEE Signal Processing Letters.
 
-LRMNet combines a depthwise-separable residual backbone with parallel channel/spatial recalibration, compressed spatial-token processing, and outer spatially gated residual fusion. The paper configuration uses a ResNet-18 topology and a contextual feature width of 128.
+LRMNet combines lightweight convolution with Mamba-based spatial relation modeling. A backbone of depthwise-separable BasicBlocks extracts hierarchical local representations, followed by parallel channel and spatial recalibration. Recalibrated features are compressed into spatial tokens, processed by a selective state-space block, and fused with convolutional features through a spatially gated residual connection.
 
-![LRMNet architecture](assets/architecture.png)
+![Architecture](assets/architecture.png)
 
-## Installation
+## 安装
 
 ```bash
 git clone https://github.com/zzyyuus/LRM.git
@@ -14,30 +14,25 @@ cd LRM
 pip install -r requirements.txt
 ```
 
-## Datasets
+## 数据集
 
-Experiments use **SIRI-WHU** and **UC Merced Land Use**. Prepare the dataset images locally. Each data root should contain the original class folders. The dataset partitions are provided in splits/.
+SIRI-WHU 和 UCMerced。请自行准备图像数据，数据划分位于 `splits/`。
 
-## Training
+## 使用
 
-```bash
-python train.py --config configs/UCMerced.json --data-root /path/to/UCMerced_LandUse/Images --output runs/UCMerced_s42 --seed 42 --device cuda
-python train.py --config configs/SIRI-WHU.json --data-root /path/to/12class_tif --output runs/SIRI_s42 --seed 42 --device cuda
-```
+模型和训练源码位于 `code/`，训练配置位于 `configs/`。配置中的原始绝对路径需根据本地目录调整。
 
-Replace the data paths with your local directories. For three-seed experiments, repeat with seeds 43 and 44 and use a separate output directory for each run.
-
-## Testing and Evaluation
-
-Evaluate the checkpoint saved during training:
+以下为 UCMerced 主模型种子 42 的训练命令。将 `/path/to/data` 换成包含划分文件中相对图像路径的数据根目录。其他两种子使用 43 和 44。去模块基线使用 `--method l4_without_attention`。
 
 ```bash
-python evaluate.py --config configs/UCMerced.json --checkpoint runs/UCMerced_s42/best_ema.pt --data-root /path/to/UCMerced_LandUse/Images --device cuda
-python evaluate.py --config configs/SIRI-WHU.json --checkpoint runs/SIRI_s42/best_ema.pt --data-root /path/to/12class_tif --device cuda
+python code/train_experiment.py \
+  --audit splits/audit.json --dataset UCMerced \
+  --split-file splits/UCMerced_bundle_fold1.json --data-root /path/to/data \
+  --output runs/UCMerced_lrmnet_s42 --method l4_resgate_spatial_k128 \
+  --depth 18 --width 128 --seed 42 --split-seed 20260929 --device cuda \
+  --epochs 300 --min-epochs 50 --patience 30 --batch-size 64 --workers 0 \
+  --augmentation none --aug-profile geo --ema-decay 0.99 --lr 0.0001 \
+  --select ema_best --early-stop-metric ema_val --test-selected-only
 ```
 
-Evaluation reports overall accuracy, macro-F1, Kappa, and the confusion matrix. Accuracy and macro-F1 are returned as fractions.
-
-## Citation
-
-LRMNet: Lightweight Intra-Image Region Relation Modeling for Remote Sensing Scene Classification. IEEE Signal Processing Letters, accepted for publication.
+训练命令中的 `--test-selected-only` 对验证集选定的权重进行测试，结果包含 OA、macro-F1 和 Kappa。
